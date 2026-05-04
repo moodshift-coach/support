@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support — MoodShift: CBT AI Coach</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap');
+  :root {
+    --bg: #f8f6ff;
+    --card: #ffffff;
+    --border: rgba(124,111,205,0.2);
+    --border-strong: rgba(124,111,205,0.35);
+    --purple: #7c6fcd;
+    --purple-dark: #3c3489;
+    --purple-light: #9b8fd4;
+    --text: #3c3489;
+    --text-body: #5a5478;
+    --text-muted: #9b8fd4;
+    --green: #3b6d11;
+    --green-bg: #eaf3de;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:16px; line-height:1.8; min-height:100vh; overflow-x:hidden; scroll-behavior:smooth; }
+
+  /* ── Language Switcher ── */
+  .lang-switcher {
+    position:fixed; top:20px; right:24px; z-index:100;
+    display:flex; gap:4px;
+    background:white; border:1px solid var(--border-strong);
+    border-radius:100px; padding:4px;
+    box-shadow:0 4px 20px rgba(124,111,205,0.15);
+  }
+  .lang-btn {
+    border:none; background:transparent; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500;
+    color:var(--text-muted); padding:6px 12px; border-radius:100px;
+    transition:background 0.2s,color 0.2s; letter-spacing:0.5px;
+  }
+  .lang-btn:hover { color:var(--purple); }
+  .lang-btn.active { background:var(--purple); color:white; box-shadow:0 2px 8px rgba(124,111,205,0.35); }
+
+  .bg-rings {
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; z-index:0; overflow:hidden;
+  }
+  .bg-rings svg { width:100%; height:100%; }
+
+  .container { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:80px 24px 120px; }
+
+  .header { text-align:center; margin-bottom:56px; }
+  .logo { display:inline-flex; align-items:center; gap:14px; margin-bottom:36px; }
+  .logo-icon { width:52px; height:52px; background:var(--purple); border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(124,111,205,0.3); }
+  .logo-icon svg { width:24px; height:24px; fill:white; }
+  .logo-name { font-family:'DM Serif Display',serif; font-size:22px; color:var(--purple-dark); display:block; line-height:1; }
+  .logo-sub { font-size:11px; color:var(--purple-light); letter-spacing:2px; text-transform:uppercase; display:block; margin-top:4px; }
+
+  h1 { font-family:'DM Serif Display',serif; font-size:clamp(34px,6vw,52px); font-weight:400; color:var(--purple-dark); line-height:1.15; margin-bottom:16px; }
+  h1 em { font-style:italic; color:var(--purple); }
+  .header-sub { color:var(--text-muted); font-size:15px; }
+
+  /* ── Form Card ── */
+  .form-card {
+    background:white; border:1px solid var(--border-strong);
+    border-radius:28px; padding:48px 40px;
+    box-shadow:0 8px 40px rgba(124,111,205,0.1);
+  }
+
+  .form-group { margin-bottom:24px; }
+  label {
+    display:block; font-size:12px; font-weight:500;
+    letter-spacing:1.2px; text-transform:uppercase;
+    color:var(--purple-light); margin-bottom:8px;
+  }
+  input, select, textarea {
+    width:100%; font-family:'DM Sans',sans-serif; font-size:15px;
+    color:var(--text); background:var(--bg);
+    border:1px solid var(--border-strong); border-radius:14px;
+    padding:14px 18px; outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color:var(--purple);
+    box-shadow:0 0 0 3px rgba(124,111,205,0.12);
+  }
+  textarea { resize:vertical; min-height:140px; line-height:1.6; }
+  select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239b8fd4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 18px center; padding-right:44px; }
+
+  .submit-btn {
+    width:100%; background:var(--purple); color:white;
+    border:none; border-radius:100px; padding:16px 36px;
+    font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500;
+    cursor:pointer; box-shadow:0 4px 16px rgba(124,111,205,0.35);
+    transition:transform 0.2s, box-shadow 0.2s;
+    margin-top:8px;
+  }
+  .submit-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(124,111,205,0.45); }
+  .submit-btn:active { transform:translateY(0); }
+  .submit-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+  /* ── Success state ── */
+  .success-msg {
+    display:none; text-align:center; padding:32px 24px;
+  }
+  .success-icon { font-size:48px; margin-bottom:16px; display:block; }
+  .success-msg h3 { font-family:'DM Serif Display',serif; font-size:26px; color:var(--purple-dark); margin-bottom:10px; }
+  .success-msg p { color:var(--text-body); font-size:15px; }
+
+  .divider { width:60px; height:2px; background:linear-gradient(90deg,transparent,var(--purple),transparent); margin:40px auto; border:none; }
+
+  .alt-contact { text-align:center; }
+  .alt-contact p { color:var(--text-muted); font-size:14px; margin-bottom:6px; }
+  .alt-contact a { color:var(--purple); font-size:15px; font-weight:500; text-decoration:none; }
+  .alt-contact a:hover { text-decoration:underline; }
+
+  .footer { text-align:center; margin-top:72px; padding-top:32px; border-top:0.5px solid var(--border); color:var(--text-muted); font-size:13px; }
+  .footer span { color:var(--purple); }
+
+  [data-lang] { display:none; }
+  [data-lang].active { display:block; }
+
+  @media(max-width:600px){
+    .container { padding:60px 16px 80px; }
+    .form-card { padding:32px 20px; }
+    h1 { font-size:30px; }
+    .lang-switcher { top:12px; right:12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="lang-switcher" role="navigation" aria-label="Language selector">
+  <button class="lang-btn active" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" onclick="setLang('pl')">PL</button>
+  <button class="lang-btn" onclick="setLang('de')">DE</button>
+</div>
+
+<div class="bg-rings">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bgGrad" cx="50%" cy="45%" r="70%">
+        <stop offset="0%" stop-color="#eeedfe" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#f8f6ff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="1440" height="900" fill="url(#bgGrad)"/>
+    <circle cx="720" cy="400" r="60"  fill="none" stroke="#c5bff0" stroke-width="0.8" opacity="0.9"/>
+    <circle cx="720" cy="400" r="120" fill="none" stroke="#d4cff5" stroke-width="0.7" opacity="0.8"/>
+    <circle cx="720" cy="400" r="190" fill="none" stroke="#c5bff0" stroke-width="0.6" opacity="0.7"/>
+    <circle cx="720" cy="400" r="270" fill="none" stroke="#d4cff5" stroke-width="0.6" opacity="0.6"/>
+    <circle cx="720" cy="400" r="360" fill="none" stroke="#c5bff0" stroke-width="0.5" opacity="0.55"/>
+    <circle cx="720" cy="400" r="460" fill="none" stroke="#d4cff5" stroke-width="0.5" opacity="0.45"/>
+  </svg>
+</div>
+
+<div class="container">
+
+  <!-- ════ ENGLISH ════ -->
+  <div data-lang="en" class="active">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17 5.8 21.3l2.4-7.4L2 9.4h7.6z"/></svg>
+        </div>
+        <div>
+          <span class="logo-name">MoodShift</span>
+          <span class="logo-sub">CBT AI Coach</span>
+        </div>
+      </div>
+      <h1>How can we <em>help?</em></h1>
+      <p class="header-sub">We usually respond within 24 hours.</p>
+    </div>
+
+    <div class="form-card">
+      <div class="success-msg" id="success-en">
+        <span class="success-icon">✉️</span>
+        <h3>Message sent!</h3>
+        <p>Thank you for reaching out. We'll get back to you within 24 hours.</p>
+      </div>
+      <form id="form-en" action="https://formspree.io/f/xwvyljvj" method="POST">
+        <input type="hidden" name="_language" value="en">
+        <div class="form-group">
+          <label for="name-en">Your name</label>
+          <input type="text" id="name-en" name="name" placeholder="Jane Smith" required>
+        </div>
+        <div class="form-group">
+          <label for="email-en">Email address</label>
+          <input type="email" id="email-en" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="topic-en">Topic</label>
+          <select id="topic-en" name="topic" required>
+            <option value="" disabled selected>Select a topic…</option>
+            <option value="subscription">Subscription &amp; billing</option>
+            <option value="technical">Technical issue</option>
+            <option value="privacy">Privacy &amp; data</option>
+            <option value="feedback">Feedback &amp; suggestions</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message-en">Message</label>
+          <textarea id="message-en" name="message" placeholder="Describe your issue or question…" required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Send message →</button>
+      </form>
+    </div>
+
+    <hr class="divider"/>
+    <div class="alt-contact">
+      <p>Prefer email directly?</p>
+      <a href="mailto:moodshift.coach@gmail.com">moodshift.coach@gmail.com</a>
+    </div>
+
+    <div class="footer">
+      <p>© 2026 MoodShift: CBT AI Coach &nbsp;·&nbsp; <span>Privacy by Design</span></p>
+    </div>
+  </div><!-- /en -->
+
+
+  <!-- ════ POLSKI ════ -->
+  <div data-lang="pl">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17 5.8 21.3l2.4-7.4L2 9.4h7.6z"/></svg>
+        </div>
+        <div>
+          <span class="logo-name">MoodShift</span>
+          <span class="logo-sub">CBT AI Coach</span>
+        </div>
+      </div>
+      <h1>Jak możemy <em>pomóc?</em></h1>
+      <p class="header-sub">Zazwyczaj odpowiadamy w ciągu 24 godzin.</p>
+    </div>
+
+    <div class="form-card">
+      <div class="success-msg" id="success-pl">
+        <span class="success-icon">✉️</span>
+        <h3>Wiadomość wysłana!</h3>
+        <p>Dziękujemy za kontakt. Odpowiemy w ciągu 24 godzin.</p>
+      </div>
+      <form id="form-pl" action="https://formspree.io/f/xwvyljvj" method="POST">
+        <input type="hidden" name="_language" value="pl">
+        <div class="form-group">
+          <label for="name-pl">Imię i nazwisko</label>
+          <input type="text" id="name-pl" name="name" placeholder="Jan Kowalski" required>
+        </div>
+        <div class="form-group">
+          <label for="email-pl">Adres e-mail</label>
+          <input type="email" id="email-pl" name="email" placeholder="ty@przykład.pl" required>
+        </div>
+        <div class="form-group">
+          <label for="topic-pl">Temat</label>
+          <select id="topic-pl" name="topic" required>
+            <option value="" disabled selected>Wybierz temat…</option>
+            <option value="subscription">Subskrypcja i płatności</option>
+            <option value="technical">Problem techniczny</option>
+            <option value="privacy">Prywatność i dane</option>
+            <option value="feedback">Opinia i sugestie</option>
+            <option value="other">Inne</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message-pl">Wiadomość</label>
+          <textarea id="message-pl" name="message" placeholder="Opisz swój problem lub pytanie…" required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Wyślij wiadomość →</button>
+      </form>
+    </div>
+
+    <hr class="divider"/>
+    <div class="alt-contact">
+      <p>Wolisz napisać bezpośrednio?</p>
+      <a href="mailto:moodshift.coach@gmail.com">moodshift.coach@gmail.com</a>
+    </div>
+
+    <div class="footer">
+      <p>© 2026 MoodShift: CBT AI Coach &nbsp;·&nbsp; <span>Prywatność przez projektowanie</span></p>
+    </div>
+  </div><!-- /pl -->
+
+
+  <!-- ════ DEUTSCH ════ -->
+  <div data-lang="de">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17 5.8 21.3l2.4-7.4L2 9.4h7.6z"/></svg>
+        </div>
+        <div>
+          <span class="logo-name">MoodShift</span>
+          <span class="logo-sub">CBT AI Coach</span>
+        </div>
+      </div>
+      <h1>Wie können wir <em>helfen?</em></h1>
+      <p class="header-sub">Wir antworten in der Regel innerhalb von 24 Stunden.</p>
+    </div>
+
+    <div class="form-card">
+      <div class="success-msg" id="success-de">
+        <span class="success-icon">✉️</span>
+        <h3>Nachricht gesendet!</h3>
+        <p>Danke für deine Nachricht. Wir melden uns innerhalb von 24 Stunden.</p>
+      </div>
+      <form id="form-de" action="https://formspree.io/f/xwvyljvj" method="POST">
+        <input type="hidden" name="_language" value="de">
+        <div class="form-group">
+          <label for="name-de">Dein Name</label>
+          <input type="text" id="name-de" name="name" placeholder="Max Mustermann" required>
+        </div>
+        <div class="form-group">
+          <label for="email-de">E-Mail-Adresse</label>
+          <input type="email" id="email-de" name="email" placeholder="du@beispiel.de" required>
+        </div>
+        <div class="form-group">
+          <label for="topic-de">Thema</label>
+          <select id="topic-de" name="topic" required>
+            <option value="" disabled selected>Thema auswählen…</option>
+            <option value="subscription">Abonnement &amp; Abrechnung</option>
+            <option value="technical">Technisches Problem</option>
+            <option value="privacy">Datenschutz &amp; Daten</option>
+            <option value="feedback">Feedback &amp; Vorschläge</option>
+            <option value="other">Sonstiges</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message-de">Nachricht</label>
+          <textarea id="message-de" name="message" placeholder="Beschreibe dein Problem oder deine Frage…" required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Nachricht senden →</button>
+      </form>
+    </div>
+
+    <hr class="divider"/>
+    <div class="alt-contact">
+      <p>Lieber direkt per E-Mail?</p>
+      <a href="mailto:moodshift.coach@gmail.com">moodshift.coach@gmail.com</a>
+    </div>
+
+    <div class="footer">
+      <p>© 2026 MoodShift: CBT AI Coach &nbsp;·&nbsp; <span>Privacy by Design</span></p>
+    </div>
+  </div><!-- /de -->
+
+</div><!-- /container -->
+
+<script>
+  function setLang(lang) {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-lang]').forEach(el => {
+      el.classList.toggle('active', el.dataset.lang === lang);
+    });
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === lang);
+    });
+    try { localStorage.setItem('moodshift-lang', lang); } catch(e) {}
+  }
+
+  // restore saved language or detect from browser
+  (function() {
+    let saved;
+    try { saved = localStorage.getItem('moodshift-lang'); } catch(e) {}
+    if (saved && ['en','pl','de'].includes(saved)) { setLang(saved); return; }
+    const nav = (navigator.language || 'en').toLowerCase();
+    if (nav.startsWith('pl')) setLang('pl');
+    else if (nav.startsWith('de')) setLang('de');
+  })();
+
+  // handle form submissions via fetch (no redirect)
+  ['en','pl','de'].forEach(lang => {
+    const form = document.getElementById('form-' + lang);
+    const success = document.getElementById('success-' + lang);
+    if (!form) return;
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = form.querySelector('.submit-btn');
+      btn.disabled = true;
+      btn.textContent = '…';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          form.style.display = 'none';
+          success.style.display = 'block';
+        } else {
+          btn.disabled = false;
+          btn.textContent = lang === 'pl' ? 'Wyślij wiadomość →' : lang === 'de' ? 'Nachricht senden →' : 'Send message →';
+          alert('Something went wrong. Please try again or email us directly.');
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = lang === 'pl' ? 'Wyślij wiadomość →' : lang === 'de' ? 'Nachricht senden →' : 'Send message →';
+        alert('Something went wrong. Please try again or email us directly.');
+      }
+    });
+  });
+</script>
+</body>
+</html>
